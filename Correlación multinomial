@@ -1,0 +1,55 @@
+# (1) Instalar y cargar librerías
+# ----------------------------------------------------------
+#¿influye los medios de informacion y la ideologia politica en la probabilidad de votar en el municipio de comonfort?
+install.packages("carData")
+install.packages("nnet")
+install.packages("marginaleffects")
+install.packages("ggplot2")
+install.packages("readxl")
+library(readxl)
+library(carData)
+library(nnet)
+library(marginaleffects)
+library(dplyr)
+library(ggplot2)
+
+datos <- read_excel("comonfort.xlsx")
+View(datos)
+# (2) Cargar base de datos
+# ----------------------------------------------------------
+data("datos")
+head(datos)
+str(datos)
+
+# Variable dependiente: vote (5 categorías)
+table(datos$Votacion)
+
+# (3) Ajustar modelo logit multinomial
+# ----------------------------------------------------------
+# Modelo: votacion ~ clase_economica + medios
+
+mod_datos <- multinom(Votacion ~ Ocupacion + Medios + Clase_economica + Ideologia_politica + Partido_Politico, data = datos, trace = FALSE)
+
+summary(mod_datos)
+
+# (4) Coeficientes e interpretación
+# ----------------------------------------------------------
+# Exp(coef) = Odds ratios
+exp(coef(mod_datos))
+
+# Ocupacion
+
+ame_Ocupacion <- avg_slopes(mod_datos, variables = "Ocupacion", type = "probs")
+ame_Ocupacion
+
+#clase_economica
+ame_Clase_economica <- avg_slopes(mod_datos, variables = "Clase_economica", type = "probs")
+ame_Clase_economica
+
+#Ideologia_politicaDerecha
+ame_Ideologia_politica <- avg_slopes(mod_datos, variables = "Ideologia_politica", type = "probs")
+ame_Ideologia_politica
+
+#Medios
+ame_Medios <- avg_slopes(mod_datos, variables = "Medios", type = "probs")
+ame_Medios
